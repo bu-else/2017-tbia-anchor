@@ -1,6 +1,6 @@
 'use strict';
 const Async = require('async');
-const Bcrypt = require('bcrypt');
+const Bcrypt = require('bcryptjs');
 const Clinician = require('./clinician');
 const Joi = require('joi');
 const MongoModels = require('hicsail-mongo-models');
