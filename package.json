@@ -26,8 +26,10 @@
   },
   "dependencies": {
     "adm-zip": "0.4.x",
+    "ajv": "^5.5.1",
+    "ajv-keywords": "^2.1.1",
     "archiver": "2.x.x",
-    "async": "2.x.x",
+    "async": "^2.6.0",
     "bcryptjs": "~2.0.2",
     "boom": "5.x.x",
     "child_process": "1.x.x",
