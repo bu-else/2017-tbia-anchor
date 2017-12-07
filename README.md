@@ -1,10 +1,16 @@
 # Anchor
+A fork of https://github.com/hicsail/anchor, modified for our purposes.
 
-[![CircleCI](https://circleci.com/gh/hicsail/anchor/tree/master.svg?style=svg)](https://circleci.com/gh/hicsail/anchor/tree/master)
+## TBIA Team Development Notes
+* For the sake of temporary simplicity, we are mainly implementing interactions with Mongo ourselves, rather than using the existing MongoModels provided as part of the Anchor framework. The javascripts for Mongo Models for our data have been created, but are not in use.
+* Authentication for posting results consists of checking if the user's ID is currently in the session collection (known to be insecure, just being used for testing).
+
+
+<!-- [![CircleCI](https://circleci.com/gh/hicsail/anchor/tree/master.svg?style=svg)](https://circleci.com/gh/hicsail/anchor/tree/master)
 [![Build Status](https://travis-ci.org/hicsail/anchor.svg?branch=master)](https://travis-ci.org/hicsail/anchor)
 [![Dependency Status](https://img.shields.io/david/hicsail/anchor.svg)](https://david-dm.org/hicsail/hicsail-mongo-models)
 [![devDependency Status](https://img.shields.io/david/dev/hicsail/anchor.svg)](https://david-dm.org/hicsail/hicsail-mongo-models?type=dev)
-[![Coverage Status](https://coveralls.io/repos/github/hicsail/anchor/badge.svg?branch=master)](https://coveralls.io/github/hicsail/anchor?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/hicsail/anchor/badge.svg?branch=master)](https://coveralls.io/github/hicsail/anchor?branch=master) -->
 
 A user system API starter with a database administrative system. Bring your own front-end.
 
@@ -32,7 +38,7 @@ using [MongoDB](http://www.mongodb.org/) as a data store. This project
 was originally a fork from [Frame](https://github.com/jedireza/frame)
 
 
-## Live demo
+<!-- ## Live demo
 
 | url                                                                        | username | password |
 |:-------------------------------------------------------------------------- |:-------- |:-------- |
@@ -41,7 +47,7 @@ was originally a fork from [Frame](https://github.com/jedireza/frame)
 
 [Postman](http://www.getpostman.com/) is a great tool for testing and
 developing APIs. See the wiki for details on [how to
-login](https://github.com/jedireza/frame/wiki/How-to-login).
+login](https://github.com/jedireza/frame/wiki/How-to-login). -->
 
 
 ## Requirements
@@ -49,17 +55,15 @@ login](https://github.com/jedireza/frame/wiki/How-to-login).
 You need [Node.js](http://nodejs.org/download/) installed and you'll need
 [MongoDB](http://www.mongodb.org/downloads) installed and running.
 
-We use [`bcrypt`](https://github.com/ncb000gt/node.bcrypt.js) for hashing
-secrets. If you have issues during installation related to `bcrypt` then [refer
-to this wiki
+HICSAIL's Anchor uses [`bcrypt`](https://github.com/ncb000gt/node.bcrypt.js) for hashing secrets, but we encountered issues and used [`bcryptjs`]. If you want to use [`bcrypt`] and have issues during installation, then [referto this wiki
 page](https://github.com/jedireza/frame/wiki/bcrypt-Installation-Trouble).
 
 
 ## Installation
 
 ```bash
-$ git clone git@github.com:hicsail/anchor.git
-$ cd anchor
+$ git clone https://github.com/bu-else/2017-tbia-anchor.git
+$ cd 2017-tbia-anchor
 $ npm install
 ```
 
@@ -81,9 +85,7 @@ to your repository.__
 
 ## First time setup
 
-__WARNING__: This will clear all data in the following MongoDB collections if
-they exist: `authAttempts`, `backups`, `events`, `feedback`, `invite`,
-`sessions`, `tokens`, and `users`.
+__WARNING__: This will clear all data in several Mongo collections (use a new mongo database for this framework).
 
 ```bash
 $ npm run first-time-setup
@@ -116,11 +118,11 @@ see the welcome message.
 [`nodemon`](https://github.com/remy/nodemon) watches for changes in server
 code and restarts the app automatically.
 
-We also pass the `--inspect` flag to Node so you have a debugger available.
+<!-- We also pass the `--inspect` flag to Node so you have a debugger available.
 Watch the output of `$ npm start` and look for the debugging URL and open it in
 Chrome. It looks something like this:
 
-`chrome-devtools://devtools/remote/serve_file/@62cd277117e6f8ec53e31b1be58290a6f7ab42ef/inspector.html?experiments=true&v8only=true&ws=localhost:9229/node`
+`chrome-devtools://devtools/remote/serve_file/@62cd277117e6f8ec53e31b1be58290a6f7ab42ef/inspector.html?experiments=true&v8only=true&ws=localhost:9229/node` -->
 
 
 ## Running in production
@@ -138,7 +140,7 @@ these environment variables in your production environment:
    installing `devDependencies`, which we may need to run the first time
    setup script.
    
-## Running with Docker
+<!-- ## Running with Docker
 
 Running with [Docker](https://www.docker.com/) and 
 [Docker Compose](https://docs.docker.com/compose/) is quick and easy. Just run
@@ -160,10 +162,10 @@ initiative to read relevant documentation and be pro-active with debugging.
 ## Want to contribute?
 
 Contributions are welcome. If you're changing something non-trivial, you may
-want to submit an issue before creating a large pull request.
+want to submit an issue before creating a large pull request. -->
 
 
-## Running tests
+<!-- ## Running tests
 
 [Lab](https://github.com/hapijs/lab) is part of the hapi ecosystem and what we
 use to write all of our tests.
@@ -188,7 +190,7 @@ $ npm test
 # No global variable leaks detected
 # Coverage: 100.00%
 # Linting results: No issues
-```
+``` -->
 
 ## License
 

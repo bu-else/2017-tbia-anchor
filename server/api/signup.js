@@ -6,252 +6,252 @@ const internals = {};
 const Joi = require('joi');
 const PasswordComplexity = require('joi-password-complexity');
 
-internals.applyRoutes = function (server, next) {
+internals.applyRoutes = function(server, next) {
 
-  const Session = server.plugins['hicsail-hapi-mongo-models'].Session;
-  const User = server.plugins['hicsail-hapi-mongo-models'].User;
-  const Invite = server.plugins['hicsail-hapi-mongo-models'].Invite;
+    const Session = server.plugins['hicsail-hapi-mongo-models'].Session;
+    const User = server.plugins['hicsail-hapi-mongo-models'].User;
+    const Invite = server.plugins['hicsail-hapi-mongo-models'].Invite;
 
-  server.route({
-    method: 'POST',
-    path: '/signup',
-    config: {
-      validate: {
-        payload: {
-          username: Joi.string().token().lowercase().invalid('root').required(),
-          password: Joi.string().required(),
-          email: Joi.string().email().lowercase().required(),
-          name: Joi.string().required(),
-          application: Joi.string().default('Web'),
-          invite: Joi.string().optional()
-        }
-      },
-      pre: [{
-        assign: 'usernameCheck',
-        method: function (request, reply) {
+    server.route({
+        method: 'POST',
+        path: '/signup',
+        config: {
+            validate: {
+                payload: {
+                    username: Joi.string().token().lowercase().invalid('root').required(),
+                    password: Joi.string().required(),
+                    email: Joi.string().email().lowercase().required(),
+                    name: Joi.string().required(),
+                    application: Joi.string().default('Web'),
+                    invite: Joi.string().optional()
+                }
+            },
+            pre: [{
+                assign: 'usernameCheck',
+                method: function(request, reply) {
 
-          const conditions = {
-            username: request.payload.username
-          };
+                    const conditions = {
+                        username: request.payload.username
+                    };
 
-          User.findOne(conditions, (err, user) => {
+                    User.findOne(conditions, (err, user) => {
 
-            if (err) {
-              return reply(err);
-            }
+                        if (err) {
+                            return reply(err);
+                        }
 
-            if (user) {
-              return reply(Boom.conflict('Username already in use.'));
-            }
+                        if (user) {
+                            return reply(Boom.conflict('Username already in use.'));
+                        }
 
-            reply(true);
-          });
-        }
-      }, {
-        assign: 'emailCheck',
-        method: function (request, reply) {
+                        reply(true);
+                    });
+                }
+            }, {
+                assign: 'emailCheck',
+                method: function(request, reply) {
 
-          const conditions = {
-            email: request.payload.email
-          };
+                    const conditions = {
+                        email: request.payload.email
+                    };
 
-          User.findOne(conditions, (err, user) => {
+                    User.findOne(conditions, (err, user) => {
 
-            if (err) {
-              return reply(err);
-            }
+                        if (err) {
+                            return reply(err);
+                        }
 
-            if (user) {
-              return reply(Boom.conflict('Email already in use.'));
-            }
+                        if (user) {
+                            return reply(Boom.conflict('Email already in use.'));
+                        }
 
-            reply(true);
-          });
-        }
-      },{
-        assign: 'passwordCheck',
-        method: function (request, reply) {
+                        reply(true);
+                    });
+                }
+            }, {
+                assign: 'passwordCheck',
+                method: function(request, reply) {
 
-          const complexityOptions = Config.get('/passwordComplexity');
-          Joi.validate(request.payload.password, new PasswordComplexity(complexityOptions), (err, value) => {
+                    const complexityOptions = Config.get('/passwordComplexity');
+                    Joi.validate(request.payload.password, new PasswordComplexity(complexityOptions), (err, value) => {
 
-            if (err) {
-              return reply(Boom.conflict('Password does not meet complexity standards'));
-            }
-            reply(true);
-          });
-        }
-      }]
-    },
-    handler: function (request, reply) {
-
-      const mailer = request.server.plugins.mailer;
-
-      Async.auto({
-        user: function (done) {
-
-          const username = request.payload.username;
-          const password = request.payload.password;
-          const email = request.payload.email;
-          const name = request.payload.name;
-
-          User.create(username, password, email, name, done);
+                        if (err) {
+                            return reply(Boom.conflict('Password does not meet complexity standards'));
+                        }
+                        reply(true);
+                    });
+                }
+            }]
         },
-        welcome: ['user', function (results, done) {
+        handler: function(request, reply) {
 
-          const emailOptions = {
-            subject: 'Your ' + Config.get('/projectName') + ' account',
-            to: {
-              name: request.payload.name,
-              address: request.payload.email
-            }
-          };
-          const template = 'welcome';
+            const mailer = request.server.plugins.mailer;
 
-          mailer.sendEmail(emailOptions, template, request.payload, (err) => {
+            Async.auto({
+                user: function(done) {
 
-            if (err) {
-              console.warn('sending welcome email failed:', err.stack);
-            }
-          });
+                    const username = request.payload.username;
+                    const password = request.payload.password;
+                    const email = request.payload.email;
+                    const name = request.payload.name;
 
-          done();
-        }],
-        session: ['user', function (results, done) {
+                    User.create(username, password, email, name, done);
+                },
+                welcome: ['user', function(results, done) {
 
-          Session.create(results.user._id.toString(), request.payload.application, done);
-        }],
-        invite: ['user', function (results, done) {
+                    const emailOptions = {
+                        subject: 'Your ' + Config.get('/projectName') + ' account',
+                        to: {
+                            name: request.payload.name,
+                            address: request.payload.email
+                        }
+                    };
+                    const template = 'welcome';
 
-          const id = request.payload.invite;
-          if (id) {
-            const update = {
-              $set: {
-                status: 'Accepted'
-              }
-            };
-            return Invite.findByIdAndUpdate(id, update, done);
-          }
-          done();
-        }]
-      }, (err, results) => {
+                    mailer.sendEmail(emailOptions, template, request.payload, (err) => {
 
-        if (err) {
-          return reply(err);
+                        if (err) {
+                            console.warn('sending welcome email failed:', err.stack);
+                        }
+                    });
+
+                    done();
+                }],
+                session: ['user', function(results, done) {
+
+                    Session.create(results.user._id.toString(), request.payload.application, done);
+                }],
+                invite: ['user', function(results, done) {
+
+                    const id = request.payload.invite;
+                    if (id) {
+                        const update = {
+                            $set: {
+                                status: 'Accepted'
+                            }
+                        };
+                        return Invite.findByIdAndUpdate(id, update, done);
+                    }
+                    done();
+                }]
+            }, (err, results) => {
+
+                if (err) {
+                    return reply(err);
+                }
+
+                const user = results.user;
+                const credentials = results.session._id + ':' + results.session.key;
+                const authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
+
+                request.cookieAuth.set(results.session);
+                reply({
+                    user: {
+                        _id: user._id,
+                        username: user.username,
+                        email: user.email,
+                        roles: user.roles
+                    },
+                    session: results.session,
+                    authHeader
+                });
+            });
         }
+    });
 
-        const user = results.user;
-        const credentials = results.session._id + ':' + results.session.key;
-        const authHeader = 'Basic ' + new Buffer(credentials).toString('base64');
+    server.route({
+        method: 'POST',
+        path: '/available',
+        config: {
+            validate: {
+                payload: {
+                    email: Joi.string().email().lowercase().optional(),
+                    username: Joi.string().token().lowercase().optional()
+                }
+            },
+            pre: [{
+                assign: 'vaildInput',
+                method: function(request, reply) {
 
-        request.cookieAuth.set(results.session);
-        reply({
-          user: {
-            _id: user._id,
-            username: user.username,
-            email: user.email,
-            roles: user.roles
-          },
-          session: results.session,
-          authHeader
-        });
-      });
-    }
-  });
+                    const username = request.payload.username;
+                    const email = request.payload.email;
 
-  server.route({
-    method: 'POST',
-    path: '/available',
-    config: {
-      validate: {
-        payload: {
-          email: Joi.string().email().lowercase().optional(),
-          username: Joi.string().token().lowercase().optional()
-        }
-      },
-      pre: [{
-        assign: 'vaildInput',
-        method: function (request, reply) {
-
-          const username = request.payload.username;
-          const email = request.payload.email;
-
-          if (!username && !email) {
-            return reply(Boom.badRequest('invaild submission, submit username and/or email'));
-          }
-          reply(true);
-        }
-      }]
-    },
-    handler: function (request, reply) {
-
-      Async.auto({
-        usernameFind: function (done) {
-
-          const username = request.payload.username;
-
-
-          User.findOne({ username }, done);
+                    if (!username && !email) {
+                        return reply(Boom.badRequest('invaild submission, submit username and/or email'));
+                    }
+                    reply(true);
+                }
+            }]
         },
-        username: ['usernameFind', function (results, done) {
+        handler: function(request, reply) {
 
-          if (request.payload.username) {
-            if (results.usernameFind) {
-              return done(null,false);
-            }
-            return done(null,true);
-          }
-          return done();
-        }],
-        emailFind: function (done) {
+            Async.auto({
+                usernameFind: function(done) {
 
-          const email = request.payload.email;
+                    const username = request.payload.username;
 
-          User.findOne({ email }, done);
-        },
-        email: ['emailFind', function (results, done) {
 
-          if (request.payload.email) {
-            if (results.emailFind) {
-              return done(null,false);
-            }
-            return done(null,true);
-          }
-          return done();
-        }]
-      }, (err, results) => {
+                    User.findOne({ username }, done);
+                },
+                username: ['usernameFind', function(results, done) {
 
-        if (err) {
-          return reply(err);
+                    if (request.payload.username) {
+                        if (results.usernameFind) {
+                            return done(null, false);
+                        }
+                        return done(null, true);
+                    }
+                    return done();
+                }],
+                emailFind: function(done) {
+
+                    const email = request.payload.email;
+
+                    User.findOne({ email }, done);
+                },
+                email: ['emailFind', function(results, done) {
+
+                    if (request.payload.email) {
+                        if (results.emailFind) {
+                            return done(null, false);
+                        }
+                        return done(null, true);
+                    }
+                    return done();
+                }]
+            }, (err, results) => {
+
+                if (err) {
+                    return reply(err);
+                }
+
+                if (results.email === undefined) {
+                    delete results.email;
+                }
+
+                if (results.username === undefined) {
+                    delete results.username;
+                }
+
+                delete results.usernameFind;
+                delete results.emailFind;
+
+                reply(results);
+            });
         }
-
-        if (results.email === undefined) {
-          delete results.email;
-        }
-
-        if (results.username === undefined) {
-          delete results.username;
-        }
-
-        delete results.usernameFind;
-        delete results.emailFind;
-
-        reply(results);
-      });
-    }
-  });
-  next();
+    });
+    next();
 };
 
 
-exports.register = function (server, options, next) {
+exports.register = function(server, options, next) {
 
-  server.dependency(['auth', 'mailer', 'hicsail-hapi-mongo-models'], internals.applyRoutes);
+    server.dependency(['auth', 'mailer', 'hicsail-hapi-mongo-models'], internals.applyRoutes);
 
-  next();
+    next();
 };
 
 
 exports.register.attributes = {
-  name: 'signup'
+    name: 'signup'
 };
