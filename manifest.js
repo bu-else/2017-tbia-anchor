@@ -112,6 +112,12 @@ const manifest = {
         {
             plugin: './server/api/tbia_responses',
         },
+        {
+            plugin: './server/api/tbia_patient_info',
+        },
+        {
+            plugin: './server/api/tbia_update_patient_info',
+        },
 
 
 

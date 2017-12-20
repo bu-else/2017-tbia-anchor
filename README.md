@@ -3,7 +3,8 @@ A fork of https://github.com/hicsail/anchor, modified for our purposes.
 
 ## TBIA Team Development Notes
 * For the sake of temporary simplicity, we are mainly implementing interactions with Mongo ourselves, rather than using the existing MongoModels provided as part of the Anchor framework. The javascripts for Mongo Models for our data have been created, but are not in use.
-* Authentication for posting results consists of checking if the user's ID is currently in the session collection (known to be insecure, just being used for testing).
+* Authentication for posting results consists of checking if the user's ID is currently in the session collection (known to be insecure, just being used for demoing).
+* Authentication for retrieving patient info is also a simple post of the userID and ensuring the user is currently logged in. This is known to be blatantly insecure, but is a temporary solution for demo purposes. Next step is to integrate with Anchor's included authentication. 
 
 
 <!-- [![CircleCI](https://circleci.com/gh/hicsail/anchor/tree/master.svg?style=svg)](https://circleci.com/gh/hicsail/anchor/tree/master)
